@@ -1,6 +1,7 @@
 package com.clhost.weatherbot.config;
 
 import com.clhost.weatherbot.bot.WeatherBot;
+import com.clhost.weatherbot.utils.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
@@ -34,7 +35,7 @@ public class BotProxyConfig {
         String login = env.getProperty(PROXY_LOGIN_PROPERTY_NAME);
         String password = env.getProperty(PROXY_PASSWORD_PROPERTY_NAME);
 
-        if (isPropertyExists(proxyHost) && isPropertyExists(proxyPort) && isNumeric(proxyPort)) {
+        if (isPropertyExists(proxyHost) && isPropertyExists(proxyPort) && StringUtils.isNumeric(proxyPort)) {
             HttpHost host = new HttpHost(proxyHost, Integer.parseInt(proxyPort));
             if (isPropertyExists(login) && isPropertyExists(password)) {
                 // todo: log here
@@ -49,10 +50,6 @@ public class BotProxyConfig {
         // todo: log here
         System.out.println("\t bot -> simple");
         return new WeatherBot();
-    }
-
-    private static boolean isNumeric(String str) {
-        return str.matches("-?\\d+(\\.\\d+)?");
     }
 
     private static boolean isPropertyExists(String property) {
