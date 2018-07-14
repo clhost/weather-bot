@@ -26,7 +26,19 @@ repositories {
 
 dependencies {
 	// tg
-	compile "org.telegram:telegrambots-spring-boot-starter:3.6"
+	compile "org.telegram:telegrambots-spring-boot-starter:3.6.1"
+
+	// entity
+	compile group: 'net.aksingh', name: 'owm-japis', version: '2.5.2.2'
+
+	// time
+	compile group: 'joda-time', name: 'joda-time', version: '2.10'
+
+	compile group: 'commons-configuration', name: 'commons-configuration', version: '1.10'
+	compile group: 'org.jasypt', name: 'jasypt', version: '1.9.2'
+
+	// guava
+	compile 'com.google.guava:guava:25.1-jre'
 
 	// spring initializer
 	compile('org.springframework.boot:spring-boot-starter-data-jpa')
