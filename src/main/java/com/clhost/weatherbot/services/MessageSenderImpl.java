@@ -30,7 +30,7 @@ public class MessageSenderImpl implements MessageSender {
         Long chatId = usersChats.get(userId);
         try {
             bot.execute(new SendMessage(chatId, message));
-            logger.info("Sent message to chat [id:" + chatId + "]: " + message);
+            logger.info("Sent message to chat [id:" + chatId + "]: " + message.replaceAll("\n",""));
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }

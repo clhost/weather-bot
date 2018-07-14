@@ -100,7 +100,7 @@ public class WeatherBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         logger.info("Incoming message from user [id:" + update.getMessage().getFrom().getId() +
-                ", name:" + update.getMessage().getFrom().getFirstName() + "]: " + update.getMessage());
+                ", name:" + update.getMessage().getFrom().getFirstName() + "]: " + update.getMessage().getText());
         if (update.hasMessage() && update.getMessage().getText() != null) {
             int msgDate = update.getMessage().getDate();
             int currentDate = (int) (DateTime.now().getMillis() / 1000);
@@ -126,7 +126,7 @@ public class WeatherBot extends TelegramLongPollingBot {
     private void sendMessage(Long chatId, String message) {
         try {
             execute(new SendMessage(chatId, message));
-            logger.info("Sent message to chat [id:" + chatId + "]: " + message);
+            logger.info("Sent message to chat [id:" + chatId + "]: " + message.replaceAll("\n", ""));
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
