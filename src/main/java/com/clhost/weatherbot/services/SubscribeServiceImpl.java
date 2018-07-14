@@ -7,8 +7,12 @@ import com.clhost.weatherbot.repository.SubscriptionRepository;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
+@Transactional
 public class SubscribeServiceImpl implements SubscribeService {
     private SubscriptionRepository repository;
     private StatesHolder statesHolder;
@@ -31,7 +35,12 @@ public class SubscribeServiceImpl implements SubscribeService {
 
     @Override
     public boolean unsubscribe(long userId, @NotNull String city) {
-        repository.deleteByIdAndCity(userId, city);
+        repository.deleteByUserIdAndCity(userId, city);
         return statesHolder.removeStateByIdAndCity(userId, city);
+    }
+
+    @Override
+    public List<Subscription> showSubscriptions(long userId) {
+        return repository.findAllByUserId(userId);
     }
 }

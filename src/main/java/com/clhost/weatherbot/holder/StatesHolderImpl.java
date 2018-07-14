@@ -46,7 +46,7 @@ public class StatesHolderImpl implements StatesHolder {
 
     @Override
     public boolean removeStateByIdAndCity(long id, String city) {
-        return states.keySet().removeIf(s -> s.getSubscriber() == id && s.getCity().equalsIgnoreCase(city));
+        return states.keySet().removeIf(s -> s.getUserId() == id && s.getCity().equalsIgnoreCase(city));
     }
 
     @Override

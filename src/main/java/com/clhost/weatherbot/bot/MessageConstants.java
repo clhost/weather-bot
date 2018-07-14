@@ -5,7 +5,8 @@ public class MessageConstants {
     private static final String COMMANDS =
             "/start - список команд\n" +
             "/subscribe - оформить подписку на уведомления об изменении погоды\n" +
-            "/unsubscribe - отписаться от уведомлений";
+            "/unsubscribe - отписаться от уведомлений\n" +
+            "/show - показать текущие подписки";
     static final String START_1 =
             "Привет, %s! Я - бот, созданный в рамках тестового задания " +
             "на стажировку в компанию Yota. Я помогу вам отслеживать изменения погоды " +
@@ -35,6 +36,12 @@ public class MessageConstants {
             "Напишите город, от которого мне следует вас отписать:";
     static final String SUCCESSFUL_SUB =
             "Отлично! За %d %s, я сообщу, когда погода в городе \"%s\" изменится.";
+    static final String EMPTY_SUBS =
+            "Вы еще не подписаны ни на одно обновление погоды.";
+    static final String SHOW_SUBS =
+            "Ваши подписки: \n%s";
+
+
     public static final String THUNDERSTORM =
             "Ого, шторм надвигается. Приготовьтесь, так как через %d %s начнет штормить :(";
     public static final String DRIZZLE =

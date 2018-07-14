@@ -61,7 +61,7 @@ public class NotificationServiceImpl implements NotificationService {
             if (entry.getValue() != forecast.getWeather().getWeatherType() &&
                     hoursBetweenDates(DateTime.now(), forecast.getDateTime()) == subscription.getHours()) {
                 String message = getMessageByWeatherType(forecast.getWeather().getWeatherType());
-                messageSender.send(subscription.getSubscriber(),String.format(
+                messageSender.send(subscription.getUserId(),String.format(
                         message,
                         subscription.getHours(),
                         StringUtils.getHourStringByHour(subscription.getHours())

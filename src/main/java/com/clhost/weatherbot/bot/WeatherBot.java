@@ -31,6 +31,7 @@ import java.util.concurrent.Executors;
 public class WeatherBot extends TelegramLongPollingBot {
     private static final int DISCARD_MESSAGE_DURATION = 5; // в секундах
     private static final String START = "/start";
+    private static final String SHOW = "/show";
     private static final String SUBSCRIBE = "/subscribe";
     private static final String UNSUBSCRIBE = "/unsubscribe";
     private static final String[] START_ARR = {
@@ -130,6 +131,10 @@ public class WeatherBot extends TelegramLongPollingBot {
                         update.getMessage().getFrom().getFirstName()));
                 states.put(userId, InputState.START);
                 break;
+            case SHOW:
+                showSubscriptions(userId, chatId);
+                states.put(userId, InputState.START);
+                break;
             case SUBSCRIBE:
                 sendMessage(chatId, MessageConstants.SUBSCRIBE);
                 states.put(userId, InputState.SUBSCRIBE);
@@ -154,9 +159,30 @@ public class WeatherBot extends TelegramLongPollingBot {
         }
     }
 
+    private void showSubscriptions(long userId, long chatId) {
+        List<Subscription> subscriptions = subscribeService.showSubscriptions(userId);
+        System.out.println(subscriptions);
+        if (subscriptions.isEmpty()) {
+            sendMessage(chatId,  MessageConstants.EMPTY_SUBS);
+            return;
+        }
+
+        StringBuilder builder = new StringBuilder();
+        for (Subscription sub : subscriptions) {
+            builder.append("Город: ").append(sub.getCity())
+                    .append(". Время: ").append(sub.getHours()).append(" ")
+                    .append(StringUtils.getHourStringByHour(sub.getHours())).append(".\n");
+        }
+        sendMessage(chatId, String.format(
+                MessageConstants.SHOW_SUBS,
+                builder.toString()
+        ));
+    }
+
     private void subscribe(long chatId, long userId, String[] tokens) {
-        if (StringUtils.isNumeric(tokens[tokens.length - 1])) {
-            int hour = Integer.parseInt(tokens[tokens.length - 1]);
+        String hours = tokens[tokens.length - 1];
+        if (StringUtils.isNumeric(hours)) {
+            int hour = Integer.parseInt(hours);
 
             if (hour > 24 || hour < 1) {
                 sendMessage(chatId, MessageConstants.INVALID_HOUR);
@@ -180,27 +206,27 @@ public class WeatherBot extends TelegramLongPollingBot {
             if (dataList.isEmpty()) {
                 sendMessage(chatId, String.format(
                         MessageConstants.INVALID_CITY,
-                        tokens[0]
+                        city
                 ));
             }
 
             sendMessage(chatId, String.format(
                     MessageConstants.SUCCESSFUL_SUB, hour,
                     StringUtils.getHourStringByHour(hour),
-                    tokens[0]
+                    city
             ));
 
             // подписался
             subscribeService.subscribe(new Subscription(
                     userId,
-                    Integer.parseInt(tokens[1]),
-                    tokens[0]
+                    Integer.parseInt(hours),
+                    city
             ));
             states.put(userId, InputState.START);
         } else {
             sendMessage(chatId, String.format(
                     MessageConstants.INVALID_SUBSCRIBE_INFO,
-                    tokens[1]
+                    hours
             ));
         }
     }

@@ -17,7 +17,7 @@ public class Subscription {
     private long id;
 
     @Column(name = "subscriber_id", nullable = false)
-    private long subscriber; // id пользователя телеграм
+    private long userId; // id пользователя телеграм
 
     @Column(name = "hours", nullable = false)
     private int hours;
@@ -25,14 +25,16 @@ public class Subscription {
     @Column(name = "city", nullable = false)
     private String city;
 
-    public Subscription(long subscriber, int hours, String city) {
-        this.subscriber = subscriber;
+    public Subscription(long userId, int hours, String city) {
+        this.userId = userId;
         this.hours = hours;
         this.city = city;
     }
 
-    public long getSubscriber() {
-        return subscriber;
+    public Subscription() {}
+
+    public long getUserId() {
+        return userId;
     }
 
     public int getHours() {
@@ -50,14 +52,14 @@ public class Subscription {
 
         Subscription that = (Subscription) o;
 
-        if (subscriber != that.subscriber) return false;
+        if (userId != that.userId) return false;
         if (hours != that.hours) return false;
         return city != null ? city.equals(that.city) : that.city == null;
     }
 
     @Override
     public int hashCode() {
-        int result = (int) (subscriber ^ (subscriber >>> 32));
+        int result = (int) (userId ^ (userId >>> 32));
         result = 31 * result + hours;
         result = 31 * result + (city != null ? city.hashCode() : 0);
         return result;
