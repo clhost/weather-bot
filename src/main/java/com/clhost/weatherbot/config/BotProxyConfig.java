@@ -1,6 +1,7 @@
 package com.clhost.weatherbot.config;
 
 import com.clhost.weatherbot.bot.WeatherBot;
+import com.clhost.weatherbot.logger.Logging;
 import com.clhost.weatherbot.utils.StringUtils;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -8,6 +9,7 @@ import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,6 +30,9 @@ public class BotProxyConfig {
     @Autowired
     private Environment env;
 
+    @Logging
+    private Logger logger;
+
     @Bean
     public WeatherBot weatherBot() {
         String proxyHost = env.getProperty(PROXY_HOST_PROPERTY_NAME);
@@ -38,17 +43,14 @@ public class BotProxyConfig {
         if (isPropertyExists(proxyHost) && isPropertyExists(proxyPort) && StringUtils.isNumeric(proxyPort)) {
             HttpHost host = new HttpHost(proxyHost, Integer.parseInt(proxyPort));
             if (isPropertyExists(login) && isPropertyExists(password)) {
-                // todo: log here
-                System.out.println("\t bot -> with auth");
+                logger.info("Weather bot has been created with auth proxy server.");
                 return new WeatherBot(proxyWithAuth(host, login, password));
             }
-            // todo: log here
-            System.out.println("\t bot -> without auth");
+            logger.info("Weather bot has been created with no auth proxy server.");
             return new WeatherBot(proxyWithoutAuth(host));
         }
 
-        // todo: log here
-        System.out.println("\t bot -> simple");
+        logger.info("Weather bot has been created without any proxy server.");
         return new WeatherBot();
     }
 

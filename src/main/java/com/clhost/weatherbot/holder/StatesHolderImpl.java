@@ -2,9 +2,11 @@ package com.clhost.weatherbot.holder;
 
 import com.clhost.weatherbot.entity.ForecastData;
 import com.clhost.weatherbot.entity.Subscription;
+import com.clhost.weatherbot.logger.Logging;
 import com.clhost.weatherbot.repository.InterStateRepository;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,12 +22,15 @@ public class StatesHolderImpl implements StatesHolder {
     private static final Map<Subscription, ForecastData.WeatherType> states = new ConcurrentHashMap<>();
     private InterStateRepository interStateRepository;
 
+    @Logging
+    private Logger logger;
+
     @Autowired
     public void setInterStateRepository(InterStateRepository interStateRepository) {
         this.interStateRepository = interStateRepository;
     }
 
-    /**
+    /*
      * Возврат состояния из базы в случае падения сервиса
      */
     @Override
@@ -35,6 +40,7 @@ public class StatesHolderImpl implements StatesHolder {
         for (InterState interState : interStates) {
             states.put(interState.getSubscription(), interState.getWeatherType());
         }
+        logger.info("Subscription's states has been loaded from persistent storage.");
     }
 
     @Override
@@ -45,8 +51,8 @@ public class StatesHolderImpl implements StatesHolder {
     }
 
     @Override
-    public boolean removeStateByIdAndCity(long id, String city) {
-        return states.keySet().removeIf(s -> s.getUserId() == id && s.getCity().equalsIgnoreCase(city));
+    public boolean removeStateByUserIdAndCity(long userId, String city) {
+        return states.keySet().removeIf(s -> s.getUserId() == userId && s.getCity().equalsIgnoreCase(city));
     }
 
     @Override
@@ -76,11 +82,11 @@ public class StatesHolderImpl implements StatesHolder {
             this.weatherType = weatherType;
         }
 
-        public Subscription getSubscription() {
+        Subscription getSubscription() {
             return subscription;
         }
 
-        public ForecastData.WeatherType getWeatherType() {
+        ForecastData.WeatherType getWeatherType() {
             return weatherType;
         }
     }

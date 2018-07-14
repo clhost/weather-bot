@@ -4,6 +4,7 @@ import com.clhost.weatherbot.entity.ForecastData;
 import com.clhost.weatherbot.entity.InternalWeather;
 import com.clhost.weatherbot.entity.MainData;
 import com.clhost.weatherbot.entity.Wind;
+import com.clhost.weatherbot.logger.Logging;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -11,13 +12,13 @@ import net.aksingh.owmjapis.api.APIException;
 import net.aksingh.owmjapis.core.OWM;
 import net.aksingh.owmjapis.model.HourlyWeatherForecast;
 import net.aksingh.owmjapis.model.param.*;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.format.DateTimeFormat;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.lang.System;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -28,6 +29,9 @@ public class ForecastServiceImpl implements ForecastService {
     @Value("${weather.app.token}")
     private String apiKey;
 
+    @Logging
+    private Logger logger;
+
     private OWM owm;
     private InternalForecastService internalForecastService;
     private final LoadingCache<String, List<ForecastData>> cache = CacheBuilder.newBuilder()
@@ -35,8 +39,7 @@ public class ForecastServiceImpl implements ForecastService {
             .build(new CacheLoader<String, List<ForecastData>>() {
                 @Override
                 public List<ForecastData> load(@NotNull String s) throws Exception {
-                    // todo: log here
-                    System.err.println("Getting from network for city: " + s);
+                    logger.info("Getting from network for city: " + s);
                     List<ForecastData> forecastData = internalForecastService.getForecastByCity(s);
                     if (forecastData == null) {
                         throw new ForecastNotFoundException();
@@ -49,6 +52,7 @@ public class ForecastServiceImpl implements ForecastService {
     private void configureOwm() {
         owm = new OWM(apiKey);
         internalForecastService = new InternalForecastService();
+        logger.info("Forecast service has been started.");
     }
 
     @Override
@@ -58,10 +62,8 @@ public class ForecastServiceImpl implements ForecastService {
             forecastData = cache.get(city);
             return forecastData;
         } catch (ExecutionException e) {
-            //e.printStackTrace();
-            // todo: log here
-            System.err.println("Forecast not found for city: " + city);
-            return null;
+            logger.warn("Forecast not found for city: " + city);
+            return Collections.emptyList();
         }
     }
 
@@ -77,11 +79,9 @@ public class ForecastServiceImpl implements ForecastService {
                     }
                 }
             } catch (APIException e) {
-                // todo: log here
-                e.printStackTrace();
-                return Collections.emptyList();
+                logger.error(e.getMessage());
+                return null;
             }
-
             return forecastData;
         }
 

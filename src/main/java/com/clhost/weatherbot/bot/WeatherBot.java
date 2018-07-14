@@ -2,11 +2,13 @@ package com.clhost.weatherbot.bot;
 
 import com.clhost.weatherbot.entity.ForecastData;
 import com.clhost.weatherbot.entity.Subscription;
+import com.clhost.weatherbot.logger.Logging;
 import com.clhost.weatherbot.services.ForecastService;
 import com.clhost.weatherbot.services.MessageSender;
 import com.clhost.weatherbot.services.NotificationService;
 import com.clhost.weatherbot.services.SubscribeService;
 import com.clhost.weatherbot.utils.StringUtils;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +49,9 @@ public class WeatherBot extends TelegramLongPollingBot {
 
     @Value("${telegram.app.token}")
     private String token;
+
+    @Logging
+    private Logger logger;
 
     private SubscribeService subscribeService;
     private ForecastService forecastService;
@@ -75,8 +81,14 @@ public class WeatherBot extends TelegramLongPollingBot {
 
     @PostConstruct
     public void startNotifier() {
-        // fixme: заглушка в виде отдельного треда
         executorService.submit(() -> notificationService.loop());
+        logger.info("Notification service has been started.");
+    }
+
+    @PreDestroy
+    public void stopNotifier() {
+        notificationService.interrupt();
+        logger.info("Notification service has been interrupted.");
     }
 
     public WeatherBot(DefaultBotOptions options) {
@@ -87,8 +99,8 @@ public class WeatherBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        // todo: log here
-        System.out.println("New message received!: " + update.getMessage().getText());
+        logger.info("Incoming message from user [id:" + update.getMessage().getFrom().getId() +
+                ", name:" + update.getMessage().getFrom().getFirstName() + "]: " + update.getMessage());
         if (update.hasMessage() && update.getMessage().getText() != null) {
             int msgDate = update.getMessage().getDate();
             int currentDate = (int) (DateTime.now().getMillis() / 1000);
@@ -114,6 +126,7 @@ public class WeatherBot extends TelegramLongPollingBot {
     private void sendMessage(Long chatId, String message) {
         try {
             execute(new SendMessage(chatId, message));
+            logger.info("Sent message to chat [id:" + chatId + "]: " + message);
         } catch (TelegramApiException e) {
             e.printStackTrace();
         }
@@ -161,7 +174,6 @@ public class WeatherBot extends TelegramLongPollingBot {
 
     private void showSubscriptions(long userId, long chatId) {
         List<Subscription> subscriptions = subscribeService.showSubscriptions(userId);
-        System.out.println(subscriptions);
         if (subscriptions.isEmpty()) {
             sendMessage(chatId,  MessageConstants.EMPTY_SUBS);
             return;
@@ -208,6 +220,7 @@ public class WeatherBot extends TelegramLongPollingBot {
                         MessageConstants.INVALID_CITY,
                         city
                 ));
+                return;
             }
 
             sendMessage(chatId, String.format(
@@ -217,11 +230,8 @@ public class WeatherBot extends TelegramLongPollingBot {
             ));
 
             // подписался
-            subscribeService.subscribe(new Subscription(
-                    userId,
-                    Integer.parseInt(hours),
-                    city
-            ));
+            Subscription sub = new Subscription(userId, Integer.parseInt(hours), city);
+            subscribeService.subscribe(sub);
             states.put(userId, InputState.START);
         } else {
             sendMessage(chatId, String.format(
@@ -245,6 +255,7 @@ public class WeatherBot extends TelegramLongPollingBot {
                 city
         ));
         states.put(userId, InputState.START);
+        logger.info("User [id:" + userId + "] was remove subscription for city: " + city);
     }
 
     // зарегистрировать юзера

@@ -4,7 +4,9 @@ import com.clhost.weatherbot.bot.MessageConstants;
 import com.clhost.weatherbot.entity.ForecastData;
 import com.clhost.weatherbot.entity.Subscription;
 import com.clhost.weatherbot.holder.StatesHolder;
+import com.clhost.weatherbot.logger.Logging;
 import com.clhost.weatherbot.utils.StringUtils;
+import org.apache.logging.log4j.Logger;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,9 @@ public class NotificationServiceImpl implements NotificationService {
     private StatesHolder statesHolder;
     private ForecastService forecastService;
     private AtomicBoolean isInterrupted = new AtomicBoolean(false);
+
+    @Logging
+    private Logger logger;
 
     @Autowired
     public void setStatesHolder(StatesHolder statesHolder) {
@@ -42,7 +47,7 @@ public class NotificationServiceImpl implements NotificationService {
             for (Map.Entry<Subscription, ForecastData.WeatherType> entry : states.entrySet()) {
                 forecastLoop(entry);
             }
-            Thread.yield(); //fixme: мб удалить
+            Thread.yield();
         }
     }
 
@@ -61,28 +66,29 @@ public class NotificationServiceImpl implements NotificationService {
             if (entry.getValue() != forecast.getWeather().getWeatherType() &&
                     hoursBetweenDates(DateTime.now(), forecast.getDateTime()) == subscription.getHours()) {
                 String message = getMessageByWeatherType(forecast.getWeather().getWeatherType());
-                messageSender.send(subscription.getUserId(),String.format(
-                        message,
-                        subscription.getHours(),
-                        StringUtils.getHourStringByHour(subscription.getHours())
-                ));
+                messageSender.send(subscription.getUserId(),
+                        fullWeather(
+                                String.format(
+                                        message,
+                                        subscription.getHours(),
+                                        StringUtils.getHourStringByHour(subscription.getHours())),
+                                forecast
+                        )
+                );
 
-                // заменить значение
+                // заменить значение состояния
                 statesHolder.getStates().replace(
                         entry.getKey(),
                         entry.getValue(),
                         forecast.getWeather().getWeatherType());
+                logger.info("Notification has been sent for user [id:" + subscription.getUserId() + "] " +
+                        "for city " + subscription.getCity());
                 break;
             }
         }
     }
 
-    /**
-     * Разница между двумя датами в часах
-     * @param a вычитаемое
-     * @param b откуда вычитается
-     * @return количество часов между двумя датами
-     */
+    // разница между датами в часах
     private int hoursBetweenDates(DateTime a, DateTime b) {
         return (int) ((b.getMillis() - a.getMillis()) / (60 * 60 * 1000));
     }
@@ -98,5 +104,14 @@ public class NotificationServiceImpl implements NotificationService {
             case CLOUDS: return MessageConstants.CLOUDS;
         }
         return null;
+    }
+
+    private String fullWeather(String message, ForecastData forecast) {
+        return message + "\nКраткая информация по ожидаемой погоде:\n" +
+                "Температура: " + forecast.getMainData().getTemp() + "К.\n" +
+                "Давление: " + forecast.getMainData().getPressure() + "Па.\n" +
+                "Влажность: " + forecast.getMainData().getHumidity() + "%.\n" +
+                "Облачность: " + forecast.getClouds() + "%.\n" +
+                "Скорость ветра: " + forecast.getWind().getSpeed() + "м/c.";
     }
 }
