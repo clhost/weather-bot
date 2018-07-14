@@ -1,7 +1,6 @@
 package com.clhost.weatherbot.entity;
 
 public class InternalWeather {
-    private long id;
     private ForecastData.WeatherType weatherType;
     private String description;
 

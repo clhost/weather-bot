@@ -4,7 +4,6 @@ import org.joda.time.DateTime;
 
 
 public class ForecastData {
-    private long id;
     private long unixTime;
     private MainData mainData;
     private InternalWeather weather;

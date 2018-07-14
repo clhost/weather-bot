@@ -1,7 +1,6 @@
 package com.clhost.weatherbot.entity;
 
 public class MainData {
-    private long id;
     private double temp;
     private double tempMin;
     private double tempMax;

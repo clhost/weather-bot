@@ -1,7 +1,6 @@
 package com.clhost.weatherbot.entity;
 
 public class Wind {
-    private long id;
     private double speed;
     private double degree;
 
