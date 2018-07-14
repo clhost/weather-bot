@@ -6,6 +6,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+/**
+ * Сервис подписок
+ */
 public interface SubscribeService {
     /**
      *

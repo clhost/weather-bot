@@ -5,6 +5,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
+/**
+ * Сервис, предоставляющий информацию о прогнозах погоды
+ */
 public interface ForecastService {
     /**
      *
