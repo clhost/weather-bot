@@ -17,6 +17,7 @@ public class InterState {
     private long id;
 
     @OneToOne(cascade = CascadeType.MERGE)
+    @PrimaryKeyJoinColumn
     private Subscription subscription;
 
     @Enumerated(EnumType.ORDINAL)

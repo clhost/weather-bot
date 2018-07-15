@@ -16,7 +16,7 @@ public class Subscription {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "subscriber_id", nullable = false)
+    @Column(name = "user_id", nullable = false)
     private long userId; // id пользователя телеграм
 
     @Column(name = "hours", nullable = false)
