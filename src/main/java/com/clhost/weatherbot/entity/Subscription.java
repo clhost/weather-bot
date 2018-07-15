@@ -31,6 +31,13 @@ public class Subscription {
         this.city = city;
     }
 
+    public Subscription(long id, long userId, int hours, String city) {
+        this.id = id;
+        this.userId = userId;
+        this.hours = hours;
+        this.city = city;
+    }
+
     public Subscription() {}
 
     public long getUserId() {
