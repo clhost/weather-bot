@@ -11,6 +11,7 @@
 !*.md
 !src/main/resources/*
 !gradle/wrapper/*
+!*.sql
 
 # Even if they are in subdirectories
 !*/
