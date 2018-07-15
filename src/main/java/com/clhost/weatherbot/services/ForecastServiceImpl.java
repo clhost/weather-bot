@@ -89,7 +89,7 @@ public class ForecastServiceImpl implements ForecastService {
             Date d;
             Long date = (d = weatherData.getDateTime()) == null ? 0L : d.getTime();
             Cloud c;
-            Double cloud = (c = weatherData.getCloudData()) == null ? 0d : c.getCloud();
+            Double cloud = (c = weatherData.getCloudData()) == null ? 0d : c.getCloud() == null ? 0 : c.getCloud();
 
             InternalWeather internalWeather = null;
             if (weatherData.getWeatherList() != null) {
