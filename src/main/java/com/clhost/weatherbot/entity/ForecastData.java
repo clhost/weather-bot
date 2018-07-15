@@ -10,15 +10,17 @@ public class ForecastData {
     private Wind wind;
     private double clouds;
     private DateTime dateTime;
+    private String city;
 
     public ForecastData(long unixTime, MainData mainData, InternalWeather weather, Wind wind,
-                        double clouds, DateTime dateTime) {
+                        double clouds, DateTime dateTime, String city) {
         this.unixTime = unixTime;
         this.mainData = mainData;
         this.weather = weather;
         this.wind = wind;
         this.clouds = clouds;
         this.dateTime = dateTime;
+        this.city = city;
     }
 
     public long getUnixTime() {
@@ -43,6 +45,10 @@ public class ForecastData {
 
     public DateTime getDateTime() {
         return dateTime;
+    }
+
+    public String getCity() {
+        return city;
     }
 
     public enum WeatherType {
@@ -86,6 +92,7 @@ public class ForecastData {
                 ", wind=" + wind +
                 ", clouds=" + clouds +
                 ", dateTime=" + dateTime +
+                ", city=" + city +
                 '}';
     }
 }

@@ -75,7 +75,7 @@ public class ForecastServiceImpl implements ForecastService {
                 forecastData = new ArrayList<>();
                 if (dataList.getDataList() != null) {
                     for (WeatherData weatherData : dataList.getDataList()) {
-                        forecastData.add(map(weatherData));
+                        forecastData.add(map(weatherData, dataList.getCityData().getName()));
                     }
                 }
             } catch (APIException e) {
@@ -85,7 +85,7 @@ public class ForecastServiceImpl implements ForecastService {
             return forecastData;
         }
 
-        private ForecastData map(WeatherData weatherData) {
+        private ForecastData map(WeatherData weatherData, String city) {
             Date d;
             Long date = (d = weatherData.getDateTime()) == null ? 0L : d.getTime();
             Cloud c;
@@ -104,7 +104,8 @@ public class ForecastServiceImpl implements ForecastService {
                     mapWind(weatherData.getWindData()),
                     cloud,
                     dateTimeText == null ? null :
-                            DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").parseDateTime(dateTimeText)
+                            DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss").parseDateTime(dateTimeText),
+                    city
             );
         }
 
