@@ -1,7 +1,6 @@
 package com.clhost.weatherbot.entity;
 
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -9,7 +8,6 @@ import javax.persistence.*;
 @Entity
 @Table(name = "inter_state")
 @Setter
-@NoArgsConstructor
 @EqualsAndHashCode
 public class InterState {
     @Id

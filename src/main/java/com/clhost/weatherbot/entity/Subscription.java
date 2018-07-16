@@ -1,6 +1,5 @@
 package com.clhost.weatherbot.entity;
 
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -9,7 +8,6 @@ import javax.persistence.*;
 @Entity
 @Table(name = "subscription")
 @Setter
-@NoArgsConstructor
 @ToString
 public class Subscription {
     @Id
